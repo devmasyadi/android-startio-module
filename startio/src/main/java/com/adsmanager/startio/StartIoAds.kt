@@ -10,11 +10,11 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.adsmanager.core.CallbackAds
-import com.adsmanager.core.IRewards
+import com.adsmanager.core.SizeBanner
+import com.adsmanager.core.SizeNative
 import com.adsmanager.core.iadsmanager.IAds
 import com.adsmanager.core.iadsmanager.IInitialize
-import com.adsmanager.core.iadsmanager.SizeBanner
-import com.adsmanager.core.iadsmanager.SizeNative
+import com.adsmanager.core.rewards.IRewards
 import com.bumptech.glide.Glide
 import com.startapp.sdk.ads.banner.Banner
 import com.startapp.sdk.ads.banner.BannerListener
@@ -176,6 +176,40 @@ class StartIoAds : IAds {
                         val details = adViewNative.findViewById<ImageView>(R.id.imgDetail)
                         //Glide.with(activity).load(adDetails.getImageUrl()).centerCrop().fit().into(details);
                         Glide.with(activity).load(adDetails.imageUrl).into(details)
+                        val description = adViewNative.findViewById<TextView>(R.id.ad_body)
+                        description.text = adDetails.description
+                        val open = adViewNative.findViewById<Button>(R.id.ad_call_to_action)
+                        open.text = if (adDetails.isApp) "Install" else "Open"
+                        adDetails.registerViewForInteraction(adViewNative)
+                    }
+
+                    override fun onFailedToReceiveAd(arg0: Ad?) {
+                        // Native Ad failed to receive
+                        callbackAds?.onAdFailedToLoad("Error while loading Ad: $arg0")
+                    }
+                }
+                startAppNativeAd.loadAd(adListener)
+                nativeView.removeAllViews()
+                nativeView.addView(adViewNative)
+            }
+            SizeNative.SMALL_RECTANGLE -> {
+                val adViewNative = activity.layoutInflater.inflate(R.layout.startapp_small_rectangle_native, null) as View
+                val adListener: AdEventListener = object : AdEventListener {
+                    // Callback Listener
+                    override fun onReceiveAd(arg0: Ad) {
+                        callbackAds?.onAdLoaded()
+                        // Native Ad received
+                        val ads: ArrayList<*> = startAppNativeAd.nativeAds // get NativeAds list
+
+                        val iterator: Iterator<*> = ads.iterator()
+                        while (iterator.hasNext()) {
+                            Log.d("MyApplication", iterator.next().toString())
+                        }
+                        val adDetails = ads[0] as NativeAdDetails
+                        val title = adViewNative.findViewById<TextView>(R.id.ad_headline)
+                        title.text = adDetails.title
+                        val icon = adViewNative.findViewById<ImageView>(R.id.ad_app_icon)
+                        Glide.with(activity).load(adDetails.secondaryImageUrl).into(icon)
                         val description = adViewNative.findViewById<TextView>(R.id.ad_body)
                         description.text = adDetails.description
                         val open = adViewNative.findViewById<Button>(R.id.ad_call_to_action)

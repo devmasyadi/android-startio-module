@@ -6,11 +6,11 @@ import android.widget.Button
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.adsmanager.core.CallbackAds
-import com.adsmanager.core.IRewards
-import com.adsmanager.core.RewardsItem
+import com.adsmanager.core.SizeBanner
+import com.adsmanager.core.SizeNative
 import com.adsmanager.core.iadsmanager.IInitialize
-import com.adsmanager.core.iadsmanager.SizeBanner
-import com.adsmanager.core.iadsmanager.SizeNative
+import com.adsmanager.core.rewards.IRewards
+import com.adsmanager.core.rewards.RewardsItem
 import com.adsmanager.startio.StartIoAds
 
 class MainActivity : AppCompatActivity() {
@@ -81,6 +81,20 @@ class MainActivity : AppCompatActivity() {
                 this,
                 nativeView,
                 SizeNative.SMALL,
+                nativeSmallId,
+                object : CallbackAds() {
+                    override fun onAdFailedToLoad(error: String?) {
+                        Log.e("HALLO", "native error: $error")
+                    }
+                })
+        }
+
+        findViewById<Button>(R.id.btnSmallNativeRectangle).setOnClickListener {
+            val nativeView = findViewById<RelativeLayout>(R.id.nativeView)
+            startIoAds.showNativeAds(
+                this,
+                nativeView,
+                SizeNative.SMALL_RECTANGLE,
                 nativeSmallId,
                 object : CallbackAds() {
                     override fun onAdFailedToLoad(error: String?) {
